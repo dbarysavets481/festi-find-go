@@ -270,43 +270,77 @@ function EventDetailPage() {
                 </>
               ) : rsvp ? (
                 <>
-                  <div className="flex items-center gap-2 text-success mb-4">
-                    <CheckCircle2 className="size-5" />
-                    <p className="text-sm font-semibold">You're going</p>
-                  </div>
+                  {rsvp.status === "waitlist" ? (
+                    <div className="flex items-center gap-2 text-foreground mb-4">
+                      <Hourglass className="size-5" />
+                      <p className="text-sm font-semibold">You're on the waitlist</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-success mb-4">
+                      <CheckCircle2 className="size-5" />
+                      <p className="text-sm font-semibold">You're going</p>
+                    </div>
+                  )}
                   <div className="bg-surface rounded-xl p-4 ring-1 ring-black/5 mb-4">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                      Ticket code
+                      {rsvp.status === "waitlist" ? "Waitlist code" : "Ticket code"}
                     </p>
                     <p className="font-mono text-lg font-semibold">{rsvp.ticket_code}</p>
+                    {rsvp.status === "waitlist" && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        We'll automatically promote you if a confirmed spot opens up.
+                      </p>
+                    )}
                   </div>
+                  {rsvp.status === "confirmed" && (
+                    <>
+                      <button
+                        onClick={handleAddToCalendar}
+                        className="w-full bg-foreground text-background font-medium py-3 rounded-xl hover:opacity-90 transition-opacity mb-3 flex items-center justify-center gap-2"
+                      >
+                        <Calendar className="size-4" />
+                        Add to Calendar
+                      </button>
+                      <Link
+                        to="/my-tickets"
+                        className="block text-center w-full bg-surface ring-1 ring-black/5 font-medium py-3 rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 mb-3"
+                      >
+                        <Ticket className="size-4" />
+                        View ticket
+                      </Link>
+                    </>
+                  )}
                   <button
-                    onClick={handleAddToCalendar}
-                    className="w-full bg-foreground text-background font-medium py-3 rounded-xl hover:opacity-90 transition-opacity mb-3 flex items-center justify-center gap-2"
+                    onClick={handleCancel}
+                    disabled={submitting}
+                    className="w-full text-xs font-medium text-muted-foreground hover:text-foreground py-2 flex items-center justify-center gap-1.5 disabled:opacity-50"
                   >
-                    <Calendar className="size-4" />
-                    Add to Calendar
+                    <X className="size-3.5" />
+                    {submitting ? "Cancelling…" : "Cancel RSVP"}
                   </button>
-                  <Link
-                    to="/my-tickets"
-                    className="block text-center w-full bg-surface ring-1 ring-black/5 font-medium py-3 rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Ticket className="size-4" />
-                    View ticket
-                  </Link>
                 </>
               ) : (
                 <>
                   <p className="text-2xl font-semibold mb-1">Free RSVP</p>
                   <p className="text-xs text-muted-foreground mb-6">
-                    {soldOut ? "This event is fully booked." : "Reserve your spot in seconds."}
+                    {soldOut
+                      ? "This event is full — join the waitlist and we'll promote you if a spot opens."
+                      : "Reserve your spot in seconds."}
                   </p>
                   <button
                     onClick={handleRsvp}
-                    disabled={submitting || soldOut}
+                    disabled={submitting}
                     className="w-full bg-brand text-brand-foreground font-medium py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {soldOut ? "Sold out" : submitting ? "Reserving…" : user ? "RSVP — Get ticket" : "Sign in to RSVP"}
+                    {submitting
+                      ? soldOut
+                        ? "Joining waitlist…"
+                        : "Reserving…"
+                      : !user
+                        ? "Sign in to RSVP"
+                        : soldOut
+                          ? "Join waitlist"
+                          : "RSVP — Get ticket"}
                   </button>
                   {!user && (
                     <p className="text-[11px] text-center text-muted-foreground mt-3">
@@ -315,6 +349,7 @@ function EventDetailPage() {
                   )}
                 </>
               )}
+
             </div>
           </aside>
         </div>
