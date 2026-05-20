@@ -236,13 +236,18 @@ function EventDetailPage() {
                 </Detail>
               )}
               {event.capacity && (
-                <Detail icon={<Users className="size-4" />} label="Capacity">
-                  {attendeeCount} / {event.capacity} attending
-                  {spotsLeft !== null && spotsLeft > 0 && !isPast && (
-                    <span className="text-muted-foreground"> · {spotsLeft} spots left</span>
+                <Detail icon={<Users className="size-4" />} label="Attendance">
+                  <span className="font-semibold">{goingCount}</span> going
+                  <span className="text-muted-foreground"> / {event.capacity}</span>
+                  {waitlistCount > 0 && (
+                    <span className="text-muted-foreground">
+                      {" · "}
+                      <span className="font-semibold text-foreground">{waitlistCount}</span> on waitlist
+                    </span>
                   )}
                 </Detail>
               )}
+
             </div>
           </div>
 
