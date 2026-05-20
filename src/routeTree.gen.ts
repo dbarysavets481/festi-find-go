@@ -13,7 +13,11 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HostOnboardingRouteImport } from './routes/host.onboarding'
+import { Route as HostDashboardRouteImport } from './routes/host.dashboard'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
+import { Route as HostEventsNewRouteImport } from './routes/host.events.new'
+import { Route as HostEventsIdEditRouteImport } from './routes/host.events.$id.edit'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -35,9 +39,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HostOnboardingRoute = HostOnboardingRouteImport.update({
+  id: '/host/onboarding',
+  path: '/host/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HostDashboardRoute = HostDashboardRouteImport.update({
+  id: '/host/dashboard',
+  path: '/host/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsIdRoute = EventsIdRouteImport.update({
   id: '/events/$id',
   path: '/events/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HostEventsNewRoute = HostEventsNewRouteImport.update({
+  id: '/host/events/new',
+  path: '/host/events/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HostEventsIdEditRoute = HostEventsIdEditRouteImport.update({
+  id: '/host/events/$id/edit',
+  path: '/host/events/$id/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -47,6 +71,10 @@ export interface FileRoutesByFullPath {
   '/my-tickets': typeof MyTicketsRoute
   '/signup': typeof SignupRoute
   '/events/$id': typeof EventsIdRoute
+  '/host/dashboard': typeof HostDashboardRoute
+  '/host/onboarding': typeof HostOnboardingRoute
+  '/host/events/new': typeof HostEventsNewRoute
+  '/host/events/$id/edit': typeof HostEventsIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +82,10 @@ export interface FileRoutesByTo {
   '/my-tickets': typeof MyTicketsRoute
   '/signup': typeof SignupRoute
   '/events/$id': typeof EventsIdRoute
+  '/host/dashboard': typeof HostDashboardRoute
+  '/host/onboarding': typeof HostOnboardingRoute
+  '/host/events/new': typeof HostEventsNewRoute
+  '/host/events/$id/edit': typeof HostEventsIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +94,45 @@ export interface FileRoutesById {
   '/my-tickets': typeof MyTicketsRoute
   '/signup': typeof SignupRoute
   '/events/$id': typeof EventsIdRoute
+  '/host/dashboard': typeof HostDashboardRoute
+  '/host/onboarding': typeof HostOnboardingRoute
+  '/host/events/new': typeof HostEventsNewRoute
+  '/host/events/$id/edit': typeof HostEventsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/my-tickets' | '/signup' | '/events/$id'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/my-tickets'
+    | '/signup'
+    | '/events/$id'
+    | '/host/dashboard'
+    | '/host/onboarding'
+    | '/host/events/new'
+    | '/host/events/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/my-tickets' | '/signup' | '/events/$id'
-  id: '__root__' | '/' | '/login' | '/my-tickets' | '/signup' | '/events/$id'
+  to:
+    | '/'
+    | '/login'
+    | '/my-tickets'
+    | '/signup'
+    | '/events/$id'
+    | '/host/dashboard'
+    | '/host/onboarding'
+    | '/host/events/new'
+    | '/host/events/$id/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/my-tickets'
+    | '/signup'
+    | '/events/$id'
+    | '/host/dashboard'
+    | '/host/onboarding'
+    | '/host/events/new'
+    | '/host/events/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +141,10 @@ export interface RootRouteChildren {
   MyTicketsRoute: typeof MyTicketsRoute
   SignupRoute: typeof SignupRoute
   EventsIdRoute: typeof EventsIdRoute
+  HostDashboardRoute: typeof HostDashboardRoute
+  HostOnboardingRoute: typeof HostOnboardingRoute
+  HostEventsNewRoute: typeof HostEventsNewRoute
+  HostEventsIdEditRoute: typeof HostEventsIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -109,11 +177,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/host/onboarding': {
+      id: '/host/onboarding'
+      path: '/host/onboarding'
+      fullPath: '/host/onboarding'
+      preLoaderRoute: typeof HostOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/host/dashboard': {
+      id: '/host/dashboard'
+      path: '/host/dashboard'
+      fullPath: '/host/dashboard'
+      preLoaderRoute: typeof HostDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/$id': {
       id: '/events/$id'
       path: '/events/$id'
       fullPath: '/events/$id'
       preLoaderRoute: typeof EventsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/host/events/new': {
+      id: '/host/events/new'
+      path: '/host/events/new'
+      fullPath: '/host/events/new'
+      preLoaderRoute: typeof HostEventsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/host/events/$id/edit': {
+      id: '/host/events/$id/edit'
+      path: '/host/events/$id/edit'
+      fullPath: '/host/events/$id/edit'
+      preLoaderRoute: typeof HostEventsIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -125,6 +221,10 @@ const rootRouteChildren: RootRouteChildren = {
   MyTicketsRoute: MyTicketsRoute,
   SignupRoute: SignupRoute,
   EventsIdRoute: EventsIdRoute,
+  HostDashboardRoute: HostDashboardRoute,
+  HostOnboardingRoute: HostOnboardingRoute,
+  HostEventsNewRoute: HostEventsNewRoute,
+  HostEventsIdEditRoute: HostEventsIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

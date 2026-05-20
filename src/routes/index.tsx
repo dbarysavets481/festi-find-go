@@ -29,6 +29,8 @@ function ExplorePage() {
     supabase
       .from("events")
       .select("id,title,description,starts_at,venue,online_url,location,cover_image_url,capacity")
+      .eq("status", "published")
+      .eq("visibility", "public")
       .order("starts_at", { ascending: true })
       .then(({ data }) => {
         setEvents((data ?? []) as Event[]);

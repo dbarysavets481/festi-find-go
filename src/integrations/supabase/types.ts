@@ -22,13 +22,17 @@ export type Database = {
           created_by: string | null
           description: string
           ends_at: string | null
+          host_id: string | null
           id: string
+          is_paid: boolean
           location: string | null
           online_url: string | null
           starts_at: string
+          status: string
           timezone: string
           title: string
           venue: string | null
+          visibility: string
         }
         Insert: {
           capacity?: number | null
@@ -37,13 +41,17 @@ export type Database = {
           created_by?: string | null
           description?: string
           ends_at?: string | null
+          host_id?: string | null
           id?: string
+          is_paid?: boolean
           location?: string | null
           online_url?: string | null
           starts_at: string
+          status?: string
           timezone?: string
           title: string
           venue?: string | null
+          visibility?: string
         }
         Update: {
           capacity?: number | null
@@ -52,13 +60,58 @@ export type Database = {
           created_by?: string | null
           description?: string
           ends_at?: string | null
+          host_id?: string | null
           id?: string
+          is_paid?: boolean
           location?: string | null
           online_url?: string | null
           starts_at?: string
+          status?: string
           timezone?: string
           title?: string
           venue?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "hosts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hosts: {
+        Row: {
+          bio: string | null
+          contact_email: string
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          contact_email: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          contact_email?: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
