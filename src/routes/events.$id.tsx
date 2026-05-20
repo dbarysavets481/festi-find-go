@@ -40,25 +40,40 @@ function EventDetailPage() {
   const navigate = useNavigate();
   const [event, setEvent] = useState<EventRow | null>(null);
   const [rsvp, setRsvp] = useState<RsvpRow | null>(null);
-  const [attendeeCount, setAttendeeCount] = useState(0);
+  const [goingCount, setGoingCount] = useState(0);
+  const [waitlistCount, setWaitlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  async function refreshCounts(eventId: string) {
+    const [{ count: going }, { count: waiting }] = await Promise.all([
+      supabase
+        .from("rsvps")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", eventId)
+        .eq("status", "confirmed"),
+      supabase
+        .from("rsvps")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", eventId)
+        .eq("status", "waitlist"),
+    ]);
+    setGoingCount(going ?? 0);
+    setWaitlistCount(waiting ?? 0);
+  }
 
   useEffect(() => {
     let active = true;
     (async () => {
       setLoading(true);
-      const [{ data: ev }, { count }] = await Promise.all([
-        supabase.from("events").select("*").eq("id", id).maybeSingle(),
-        supabase.from("rsvps").select("*", { count: "exact", head: true }).eq("event_id", id),
-      ]);
+      const { data: ev } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
       if (!active) return;
       setEvent(ev as EventRow | null);
-      setAttendeeCount(count ?? 0);
+      await refreshCounts(id);
       if (user) {
         const { data: r } = await supabase
           .from("rsvps")
-          .select("id,ticket_code,created_at")
+          .select("id,ticket_code,created_at,status")
           .eq("event_id", id)
           .eq("user_id", user.id)
           .maybeSingle();
@@ -72,6 +87,7 @@ function EventDetailPage() {
       active = false;
     };
   }, [id, user]);
+
 
   if (loading) {
     return (
