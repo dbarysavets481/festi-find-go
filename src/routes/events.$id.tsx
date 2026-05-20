@@ -30,7 +30,9 @@ interface RsvpRow {
   id: string;
   ticket_code: string;
   created_at: string;
+  status: "confirmed" | "waitlist";
 }
+
 
 function EventDetailPage() {
   const { id } = Route.useParams();
