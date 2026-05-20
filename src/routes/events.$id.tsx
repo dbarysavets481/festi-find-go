@@ -114,7 +114,7 @@ function EventDetailPage() {
   const start = new Date(event.starts_at);
   const end = event.ends_at ? new Date(event.ends_at) : new Date(start.getTime() + 2 * 3600 * 1000);
   const isPast = start.getTime() < Date.now();
-  const spotsLeft = event.capacity ? Math.max(0, event.capacity - attendeeCount) : null;
+  const spotsLeft = event.capacity ? Math.max(0, event.capacity - goingCount) : null;
   const soldOut = spotsLeft === 0;
 
   async function handleRsvp() {
@@ -126,17 +126,39 @@ function EventDetailPage() {
     const { data, error } = await supabase
       .from("rsvps")
       .insert({ event_id: id, user_id: user.id })
-      .select("id,ticket_code,created_at")
+      .select("id,ticket_code,created_at,status")
       .single();
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       toast.error(error.message);
       return;
     }
-    setRsvp(data as RsvpRow);
-    setAttendeeCount((c) => c + 1);
-    toast.success("You're going! Ticket added to My Tickets.");
+    const row = data as RsvpRow;
+    setRsvp(row);
+    await refreshCounts(id);
+    setSubmitting(false);
+    if (row.status === "waitlist") {
+      toast.success("You're on the waitlist. We'll promote you if a spot opens.");
+    } else {
+      toast.success("You're going! Ticket added to My Tickets.");
+    }
   }
+
+  async function handleCancel() {
+    if (!rsvp) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("rsvps").delete().eq("id", rsvp.id);
+    if (error) {
+      setSubmitting(false);
+      toast.error(error.message);
+      return;
+    }
+    setRsvp(null);
+    await refreshCounts(id);
+    setSubmitting(false);
+    toast.success("RSVP cancelled.");
+  }
+
 
   function handleAddToCalendar() {
     if (!event) return;
