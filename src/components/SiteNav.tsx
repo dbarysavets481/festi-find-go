@@ -26,6 +26,13 @@ export function SiteNav() {
             >
               My Tickets
             </Link>
+            <Link
+              to="/host/dashboard"
+              activeProps={{ className: "text-foreground" }}
+              className="hover:text-foreground transition-colors"
+            >
+              Host
+            </Link>
           </div>
         </div>
         <div className="flex items-center gap-2">
