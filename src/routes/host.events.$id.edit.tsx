@@ -65,7 +65,7 @@ function EditEventPage() {
     void _id; void _ca;
     const { data, error } = await supabase
       .from("events")
-      .insert({ ...rest, title: `${src.title} (Copy)`, status: "draft", created_by: user.id })
+      .insert({ ...rest, title: `${src.title} (Copy)`, status: "draft", created_by: user.id } as never)
       .select("id")
       .single();
     if (error) return toast.error(error.message);

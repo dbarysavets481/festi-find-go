@@ -83,7 +83,7 @@ function HostDashboardPage() {
       title: `${src.title} (Copy)`,
       status: "draft",
       created_by: user.id,
-    };
+    } as never;
     const { data: ins, error: e2 } = await supabase.from("events").insert(copy).select("id,title,starts_at,status,visibility,cover_image_url").single();
     if (e2) return toast.error(e2.message);
     toast.success("Duplicated as draft.");
