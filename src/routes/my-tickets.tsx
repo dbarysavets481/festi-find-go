@@ -16,6 +16,7 @@ interface TicketRow {
   id: string;
   ticket_code: string;
   created_at: string;
+  status: "confirmed" | "waitlist";
   event: {
     id: string;
     title: string;
@@ -29,6 +30,7 @@ interface TicketRow {
     timezone: string;
   } | null;
 }
+
 
 function MyTicketsPage() {
   const { user, loading: authLoading } = useAuth();
