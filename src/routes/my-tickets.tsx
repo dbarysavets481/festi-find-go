@@ -49,8 +49,9 @@ function MyTicketsPage() {
     supabase
       .from("rsvps")
       .select(
-        "id,ticket_code,created_at,event:events(id,title,starts_at,ends_at,venue,online_url,location,cover_image_url,description,timezone)"
+        "id,ticket_code,created_at,status,event:events(id,title,starts_at,ends_at,venue,online_url,location,cover_image_url,description,timezone)"
       )
+
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
