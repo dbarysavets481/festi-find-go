@@ -16,6 +16,7 @@ interface TicketRow {
   id: string;
   ticket_code: string;
   created_at: string;
+  status: "confirmed" | "waitlist";
   event: {
     id: string;
     title: string;
@@ -29,6 +30,7 @@ interface TicketRow {
     timezone: string;
   } | null;
 }
+
 
 function MyTicketsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -47,8 +49,9 @@ function MyTicketsPage() {
     supabase
       .from("rsvps")
       .select(
-        "id,ticket_code,created_at,event:events(id,title,starts_at,ends_at,venue,online_url,location,cover_image_url,description,timezone)"
+        "id,ticket_code,created_at,status,event:events(id,title,starts_at,ends_at,venue,online_url,location,cover_image_url,description,timezone)"
       )
+
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
@@ -173,6 +176,12 @@ function TicketCard({ ticket, faded }: { ticket: TicketRow; faded?: boolean }) {
           <Link to="/events/$id" params={{ id: ev.id }}>
             <h3 className="text-lg font-semibold mb-1 truncate hover:text-brand">{ev.title}</h3>
           </Link>
+          {ticket.status === "waitlist" && (
+            <span className="inline-block mb-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-muted text-muted-foreground ring-1 ring-black/5">
+              Waitlist
+            </span>
+          )}
+
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <MapPin className="size-3.5" />
             {ev.venue ?? ev.online_url ?? ev.location ?? "TBA"}

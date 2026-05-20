@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { eventImage } from "@/lib/event-images";
 import { buildIcs, downloadIcs } from "@/lib/calendar";
 import { toast } from "sonner";
-import { Calendar, MapPin, Users, Clock, Globe, CheckCircle2, Ticket } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Globe, CheckCircle2, Ticket, Hourglass, X } from "lucide-react";
 
 export const Route = createFileRoute("/events/$id")({
   component: EventDetailPage,
@@ -30,7 +30,9 @@ interface RsvpRow {
   id: string;
   ticket_code: string;
   created_at: string;
+  status: "confirmed" | "waitlist";
 }
+
 
 function EventDetailPage() {
   const { id } = Route.useParams();
@@ -38,25 +40,40 @@ function EventDetailPage() {
   const navigate = useNavigate();
   const [event, setEvent] = useState<EventRow | null>(null);
   const [rsvp, setRsvp] = useState<RsvpRow | null>(null);
-  const [attendeeCount, setAttendeeCount] = useState(0);
+  const [goingCount, setGoingCount] = useState(0);
+  const [waitlistCount, setWaitlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  async function refreshCounts(eventId: string) {
+    const [{ count: going }, { count: waiting }] = await Promise.all([
+      supabase
+        .from("rsvps")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", eventId)
+        .eq("status", "confirmed"),
+      supabase
+        .from("rsvps")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", eventId)
+        .eq("status", "waitlist"),
+    ]);
+    setGoingCount(going ?? 0);
+    setWaitlistCount(waiting ?? 0);
+  }
 
   useEffect(() => {
     let active = true;
     (async () => {
       setLoading(true);
-      const [{ data: ev }, { count }] = await Promise.all([
-        supabase.from("events").select("*").eq("id", id).maybeSingle(),
-        supabase.from("rsvps").select("*", { count: "exact", head: true }).eq("event_id", id),
-      ]);
+      const { data: ev } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
       if (!active) return;
       setEvent(ev as EventRow | null);
-      setAttendeeCount(count ?? 0);
+      await refreshCounts(id);
       if (user) {
         const { data: r } = await supabase
           .from("rsvps")
-          .select("id,ticket_code,created_at")
+          .select("id,ticket_code,created_at,status")
           .eq("event_id", id)
           .eq("user_id", user.id)
           .maybeSingle();
@@ -70,6 +87,7 @@ function EventDetailPage() {
       active = false;
     };
   }, [id, user]);
+
 
   if (loading) {
     return (
@@ -96,7 +114,7 @@ function EventDetailPage() {
   const start = new Date(event.starts_at);
   const end = event.ends_at ? new Date(event.ends_at) : new Date(start.getTime() + 2 * 3600 * 1000);
   const isPast = start.getTime() < Date.now();
-  const spotsLeft = event.capacity ? Math.max(0, event.capacity - attendeeCount) : null;
+  const spotsLeft = event.capacity ? Math.max(0, event.capacity - goingCount) : null;
   const soldOut = spotsLeft === 0;
 
   async function handleRsvp() {
@@ -108,17 +126,39 @@ function EventDetailPage() {
     const { data, error } = await supabase
       .from("rsvps")
       .insert({ event_id: id, user_id: user.id })
-      .select("id,ticket_code,created_at")
+      .select("id,ticket_code,created_at,status")
       .single();
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       toast.error(error.message);
       return;
     }
-    setRsvp(data as RsvpRow);
-    setAttendeeCount((c) => c + 1);
-    toast.success("You're going! Ticket added to My Tickets.");
+    const row = data as RsvpRow;
+    setRsvp(row);
+    await refreshCounts(id);
+    setSubmitting(false);
+    if (row.status === "waitlist") {
+      toast.success("You're on the waitlist. We'll promote you if a spot opens.");
+    } else {
+      toast.success("You're going! Ticket added to My Tickets.");
+    }
   }
+
+  async function handleCancel() {
+    if (!rsvp) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("rsvps").delete().eq("id", rsvp.id);
+    if (error) {
+      setSubmitting(false);
+      toast.error(error.message);
+      return;
+    }
+    setRsvp(null);
+    await refreshCounts(id);
+    setSubmitting(false);
+    toast.success("RSVP cancelled.");
+  }
+
 
   function handleAddToCalendar() {
     if (!event) return;
@@ -196,13 +236,18 @@ function EventDetailPage() {
                 </Detail>
               )}
               {event.capacity && (
-                <Detail icon={<Users className="size-4" />} label="Capacity">
-                  {attendeeCount} / {event.capacity} attending
-                  {spotsLeft !== null && spotsLeft > 0 && !isPast && (
-                    <span className="text-muted-foreground"> · {spotsLeft} spots left</span>
+                <Detail icon={<Users className="size-4" />} label="Attendance">
+                  <span className="font-semibold">{goingCount}</span> going
+                  <span className="text-muted-foreground"> / {event.capacity}</span>
+                  {waitlistCount > 0 && (
+                    <span className="text-muted-foreground">
+                      {" · "}
+                      <span className="font-semibold text-foreground">{waitlistCount}</span> on waitlist
+                    </span>
                   )}
                 </Detail>
               )}
+
             </div>
           </div>
 
@@ -225,43 +270,77 @@ function EventDetailPage() {
                 </>
               ) : rsvp ? (
                 <>
-                  <div className="flex items-center gap-2 text-success mb-4">
-                    <CheckCircle2 className="size-5" />
-                    <p className="text-sm font-semibold">You're going</p>
-                  </div>
+                  {rsvp.status === "waitlist" ? (
+                    <div className="flex items-center gap-2 text-foreground mb-4">
+                      <Hourglass className="size-5" />
+                      <p className="text-sm font-semibold">You're on the waitlist</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-success mb-4">
+                      <CheckCircle2 className="size-5" />
+                      <p className="text-sm font-semibold">You're going</p>
+                    </div>
+                  )}
                   <div className="bg-surface rounded-xl p-4 ring-1 ring-black/5 mb-4">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                      Ticket code
+                      {rsvp.status === "waitlist" ? "Waitlist code" : "Ticket code"}
                     </p>
                     <p className="font-mono text-lg font-semibold">{rsvp.ticket_code}</p>
+                    {rsvp.status === "waitlist" && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        We'll automatically promote you if a confirmed spot opens up.
+                      </p>
+                    )}
                   </div>
+                  {rsvp.status === "confirmed" && (
+                    <>
+                      <button
+                        onClick={handleAddToCalendar}
+                        className="w-full bg-foreground text-background font-medium py-3 rounded-xl hover:opacity-90 transition-opacity mb-3 flex items-center justify-center gap-2"
+                      >
+                        <Calendar className="size-4" />
+                        Add to Calendar
+                      </button>
+                      <Link
+                        to="/my-tickets"
+                        className="block text-center w-full bg-surface ring-1 ring-black/5 font-medium py-3 rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2 mb-3"
+                      >
+                        <Ticket className="size-4" />
+                        View ticket
+                      </Link>
+                    </>
+                  )}
                   <button
-                    onClick={handleAddToCalendar}
-                    className="w-full bg-foreground text-background font-medium py-3 rounded-xl hover:opacity-90 transition-opacity mb-3 flex items-center justify-center gap-2"
+                    onClick={handleCancel}
+                    disabled={submitting}
+                    className="w-full text-xs font-medium text-muted-foreground hover:text-foreground py-2 flex items-center justify-center gap-1.5 disabled:opacity-50"
                   >
-                    <Calendar className="size-4" />
-                    Add to Calendar
+                    <X className="size-3.5" />
+                    {submitting ? "Cancelling…" : "Cancel RSVP"}
                   </button>
-                  <Link
-                    to="/my-tickets"
-                    className="block text-center w-full bg-surface ring-1 ring-black/5 font-medium py-3 rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Ticket className="size-4" />
-                    View ticket
-                  </Link>
                 </>
               ) : (
                 <>
                   <p className="text-2xl font-semibold mb-1">Free RSVP</p>
                   <p className="text-xs text-muted-foreground mb-6">
-                    {soldOut ? "This event is fully booked." : "Reserve your spot in seconds."}
+                    {soldOut
+                      ? "This event is full — join the waitlist and we'll promote you if a spot opens."
+                      : "Reserve your spot in seconds."}
                   </p>
                   <button
                     onClick={handleRsvp}
-                    disabled={submitting || soldOut}
+                    disabled={submitting}
                     className="w-full bg-brand text-brand-foreground font-medium py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {soldOut ? "Sold out" : submitting ? "Reserving…" : user ? "RSVP — Get ticket" : "Sign in to RSVP"}
+                    {submitting
+                      ? soldOut
+                        ? "Joining waitlist…"
+                        : "Reserving…"
+                      : !user
+                        ? "Sign in to RSVP"
+                        : soldOut
+                          ? "Join waitlist"
+                          : "RSVP — Get ticket"}
                   </button>
                   {!user && (
                     <p className="text-[11px] text-center text-muted-foreground mt-3">
@@ -270,6 +349,7 @@ function EventDetailPage() {
                   )}
                 </>
               )}
+
             </div>
           </aside>
         </div>
