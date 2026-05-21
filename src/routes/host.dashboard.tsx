@@ -192,6 +192,11 @@ function HostDashboardPage() {
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {new Date(e.starts_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
                     </p>
+                    <div className="flex items-center gap-3 mt-1.5 text-[11px] font-medium text-muted-foreground">
+                      <span><span className="text-foreground tabular-nums font-semibold">{stats[e.id]?.going ?? 0}</span> going</span>
+                      <span><span className="text-foreground tabular-nums font-semibold">{stats[e.id]?.waitlist ?? 0}</span> waitlist</span>
+                      <span><span className="text-foreground tabular-nums font-semibold">{stats[e.id]?.checkedIn ?? 0}</span> checked-in</span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
