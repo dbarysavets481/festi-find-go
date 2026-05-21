@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_checkers: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_checkers_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           capacity: number | null
@@ -117,6 +146,8 @@ export type Database = {
       }
       rsvps: {
         Row: {
+          checked_in_at: string | null
+          checked_in_by: string | null
           created_at: string
           event_id: string
           id: string
@@ -125,6 +156,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           created_at?: string
           event_id: string
           id?: string
@@ -133,6 +166,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           created_at?: string
           event_id?: string
           id?: string
@@ -155,7 +190,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_check_in_event: { Args: { _event_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
