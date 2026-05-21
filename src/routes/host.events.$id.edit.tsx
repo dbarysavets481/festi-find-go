@@ -98,6 +98,7 @@ function EditEventPage() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <ExportCsvButton eventId={id} variant="ring" />
             <button
               onClick={duplicate}
               className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg hover:bg-muted ring-1 ring-black/5"
