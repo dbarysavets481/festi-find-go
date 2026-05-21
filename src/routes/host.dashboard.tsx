@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteNav } from "@/components/SiteNav";
 import { toast } from "sonner";
-import { Calendar, Plus, Copy, Eye, EyeOff, Pencil } from "lucide-react";
+import { Calendar, Plus, Copy, Eye, EyeOff, Pencil, ScanLine } from "lucide-react";
 
 export const Route = createFileRoute("/host/dashboard")({
   component: HostDashboardPage,
