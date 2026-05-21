@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { SiteNav } from "@/components/SiteNav";
 import { toast } from "sonner";
 import { CheckCircle2, ScanLine, Undo2, ArrowLeft } from "lucide-react";
+import { ExportCsvButton } from "@/components/ExportCsvButton";
 
 export const Route = createFileRoute("/host/events/$id/check-in")({
   component: CheckInPage,
