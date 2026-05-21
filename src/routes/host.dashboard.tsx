@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteNav } from "@/components/SiteNav";
+import { ExportCsvButton } from "@/components/ExportCsvButton";
 import { toast } from "sonner";
 import { Calendar, Plus, Copy, Eye, EyeOff, Pencil, ScanLine } from "lucide-react";
 
@@ -27,11 +28,18 @@ interface EventRow {
   cover_image_url: string | null;
 }
 
+interface EventStats {
+  going: number;
+  waitlist: number;
+  checkedIn: number;
+}
+
 function HostDashboardPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [host, setHost] = useState<HostRow | null>(null);
   const [events, setEvents] = useState<EventRow[]>([]);
+  const [stats, setStats] = useState<Record<string, EventStats>>({});
   const [busy, setBusy] = useState(true);
 
   const load = useCallback(async () => {
@@ -52,7 +60,32 @@ function HostDashboardPage() {
       .select("id,title,starts_at,status,visibility,cover_image_url")
       .eq("created_by", user.id)
       .order("starts_at", { ascending: false });
-    setEvents((evs ?? []) as EventRow[]);
+    const evRows = (evs ?? []) as EventRow[];
+    setEvents(evRows);
+
+    // Fetch RSVPs for all host events (RLS allows host to view)
+    const ids = evRows.map((e) => e.id);
+    if (ids.length > 0) {
+      const { data: rs } = await supabase
+        .from("rsvps")
+        .select("event_id,status,checked_in_at")
+        .in("event_id", ids);
+      const map: Record<string, EventStats> = {};
+      for (const id of ids) map[id] = { going: 0, waitlist: 0, checkedIn: 0 };
+      for (const r of (rs ?? []) as { event_id: string; status: string; checked_in_at: string | null }[]) {
+        const s = map[r.event_id];
+        if (!s) continue;
+        if (r.status === "confirmed") {
+          s.going += 1;
+          if (r.checked_in_at) s.checkedIn += 1;
+        } else if (r.status === "waitlist") {
+          s.waitlist += 1;
+        }
+      }
+      setStats(map);
+    } else {
+      setStats({});
+    }
     setBusy(false);
   }, [user, navigate]);
 
@@ -159,6 +192,11 @@ function HostDashboardPage() {
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {new Date(e.starts_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
                     </p>
+                    <div className="flex items-center gap-3 mt-1.5 text-[11px] font-medium text-muted-foreground">
+                      <span><span className="text-foreground tabular-nums font-semibold">{stats[e.id]?.going ?? 0}</span> going</span>
+                      <span><span className="text-foreground tabular-nums font-semibold">{stats[e.id]?.waitlist ?? 0}</span> waitlist</span>
+                      <span><span className="text-foreground tabular-nums font-semibold">{stats[e.id]?.checkedIn ?? 0}</span> checked-in</span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -185,6 +223,7 @@ function HostDashboardPage() {
                     <Copy className="size-3.5" />
                     Duplicate
                   </button>
+                  <ExportCsvButton eventId={e.id} />
                   {e.status === "published" ? (
                     <button
                       onClick={() => setStatus(e.id, "draft")}

@@ -6,6 +6,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { EventEditor, fromDbRow, toDbPayload, type EventDraft } from "@/components/EventEditor";
 import { toast } from "sonner";
 import { Eye, EyeOff, Copy } from "lucide-react";
+import { ExportCsvButton } from "@/components/ExportCsvButton";
 
 export const Route = createFileRoute("/host/events/$id/edit")({
   component: EditEventPage,
@@ -97,6 +98,7 @@ function EditEventPage() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <ExportCsvButton eventId={id} variant="ring" />
             <button
               onClick={duplicate}
               className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg hover:bg-muted ring-1 ring-black/5"
