@@ -6,6 +6,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { EventEditor, fromDbRow, toDbPayload, type EventDraft } from "@/components/EventEditor";
 import { toast } from "sonner";
 import { Eye, EyeOff, Copy } from "lucide-react";
+import { ExportCsvButton } from "@/components/ExportCsvButton";
 
 export const Route = createFileRoute("/host/events/$id/edit")({
   component: EditEventPage,
