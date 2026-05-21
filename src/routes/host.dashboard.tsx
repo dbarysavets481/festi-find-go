@@ -39,6 +39,7 @@ function HostDashboardPage() {
   const navigate = useNavigate();
   const [host, setHost] = useState<HostRow | null>(null);
   const [events, setEvents] = useState<EventRow[]>([]);
+  const [stats, setStats] = useState<Record<string, EventStats>>({});
   const [busy, setBusy] = useState(true);
 
   const load = useCallback(async () => {
@@ -59,7 +60,32 @@ function HostDashboardPage() {
       .select("id,title,starts_at,status,visibility,cover_image_url")
       .eq("created_by", user.id)
       .order("starts_at", { ascending: false });
-    setEvents((evs ?? []) as EventRow[]);
+    const evRows = (evs ?? []) as EventRow[];
+    setEvents(evRows);
+
+    // Fetch RSVPs for all host events (RLS allows host to view)
+    const ids = evRows.map((e) => e.id);
+    if (ids.length > 0) {
+      const { data: rs } = await supabase
+        .from("rsvps")
+        .select("event_id,status,checked_in_at")
+        .in("event_id", ids);
+      const map: Record<string, EventStats> = {};
+      for (const id of ids) map[id] = { going: 0, waitlist: 0, checkedIn: 0 };
+      for (const r of (rs ?? []) as { event_id: string; status: string; checked_in_at: string | null }[]) {
+        const s = map[r.event_id];
+        if (!s) continue;
+        if (r.status === "confirmed") {
+          s.going += 1;
+          if (r.checked_in_at) s.checkedIn += 1;
+        } else if (r.status === "waitlist") {
+          s.waitlist += 1;
+        }
+      }
+      setStats(map);
+    } else {
+      setStats({});
+    }
     setBusy(false);
   }, [user, navigate]);
 
