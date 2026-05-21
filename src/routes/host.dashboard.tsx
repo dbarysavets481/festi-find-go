@@ -223,6 +223,7 @@ function HostDashboardPage() {
                     <Copy className="size-3.5" />
                     Duplicate
                   </button>
+                  <ExportCsvButton eventId={e.id} />
                   {e.status === "published" ? (
                     <button
                       onClick={() => setStatus(e.id, "draft")}
