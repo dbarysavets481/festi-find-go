@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteNav } from "@/components/SiteNav";
 import { toast } from "sonner";
-import { Calendar, Plus, Copy, Eye, EyeOff, Pencil } from "lucide-react";
+import { Calendar, Plus, Copy, Eye, EyeOff, Pencil, ScanLine } from "lucide-react";
 
 export const Route = createFileRoute("/host/dashboard")({
   component: HostDashboardPage,
@@ -162,6 +162,14 @@ function HostDashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
+                  <Link
+                    to="/host/events/$id/check-in"
+                    params={{ id: e.id }}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-muted"
+                  >
+                    <ScanLine className="size-3.5" />
+                    Check-in
+                  </Link>
                   <Link
                     to="/host/events/$id/edit"
                     params={{ id: e.id }}
