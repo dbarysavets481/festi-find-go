@@ -28,6 +28,12 @@ interface EventRow {
   cover_image_url: string | null;
 }
 
+interface EventStats {
+  going: number;
+  waitlist: number;
+  checkedIn: number;
+}
+
 function HostDashboardPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
