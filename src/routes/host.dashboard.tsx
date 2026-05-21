@@ -163,6 +163,14 @@ function HostDashboardPage() {
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Link
+                    to="/host/events/$id/check-in"
+                    params={{ id: e.id }}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-muted"
+                  >
+                    <ScanLine className="size-3.5" />
+                    Check-in
+                  </Link>
+                  <Link
                     to="/host/events/$id/edit"
                     params={{ id: e.id }}
                     className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-muted"
