@@ -252,6 +252,16 @@ function EventDetailPage() {
               )}
 
             </div>
+
+            <GallerySection eventId={event.id} userHasConfirmedRsvp={rsvp?.status === "confirmed"} />
+            <FeedbackSection
+              eventId={event.id}
+              eventEnded={isPast}
+              userHasConfirmedRsvp={rsvp?.status === "confirmed"}
+            />
+            <div className="mt-10 flex justify-end">
+              <ReportButton targetType="event" targetId={event.id} />
+            </div>
           </div>
 
           <aside className="lg:col-span-4">
