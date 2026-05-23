@@ -20,17 +20,7 @@ export const exportEventRsvpsCsv = createServerFn({ method: "POST" })
     if (evErr) throw new Error(evErr.message);
     if (!ev) throw new Error("Event not found");
 
-    let authorized = ev.created_by === userId;
-    if (!authorized) {
-      const { data: c } = await supabase
-        .from("event_checkers")
-        .select("id")
-        .eq("event_id", data.eventId)
-        .eq("user_id", userId)
-        .maybeSingle();
-      authorized = !!c;
-    }
-    if (!authorized) throw new Error("Forbidden");
+    if (ev.created_by !== userId) throw new Error("Forbidden");
 
     // Fetch RSVPs (admin to ensure complete set regardless of RLS edge cases)
     const { data: rsvps, error: rsvpErr } = await supabaseAdmin
