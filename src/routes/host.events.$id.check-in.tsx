@@ -33,6 +33,7 @@ function CheckInPage() {
   const [event, setEvent] = useState<EventRow | null>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const [isHost, setIsHost] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [lastCheckedInId, setLastCheckedInId] = useState<string | null>(null);
@@ -51,18 +52,29 @@ function CheckInPage() {
     }
     setEvent(ev as EventRow);
 
-    const isHost = ev.created_by === user.id;
-    let isChecker = false;
-    if (!isHost) {
-      const { data: c } = await supabase
-        .from("event_checkers")
-        .select("id")
-        .eq("event_id", id)
-        .eq("user_id", user.id)
-        .maybeSingle();
-      isChecker = !!c;
+    const hostFlag = ev.created_by === user.id;
+    setIsHost(hostFlag);
+    let allowed = hostFlag;
+    if (!allowed) {
+      const [{ data: c }, { data: hc }] = await Promise.all([
+        supabase
+          .from("event_checkers")
+          .select("id")
+          .eq("event_id", id)
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        ev.created_by
+          ? supabase
+              .from("host_checkers" as never)
+              .select("id")
+              .eq("host_user_id", ev.created_by)
+              .eq("user_id", user.id)
+              .maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+      allowed = !!c || !!hc;
     }
-    if (!isHost && !isChecker) {
+    if (!allowed) {
       setAuthorized(false);
       return;
     }
@@ -181,7 +193,7 @@ function CheckInPage() {
             <h1 className="text-2xl md:text-3xl font-semibold mb-1">Check-in</h1>
             <p className="text-sm text-muted-foreground">{event?.title}</p>
           </div>
-          <ExportCsvButton eventId={id} variant="ring" />
+          {isHost && <ExportCsvButton eventId={id} variant="ring" />}
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-8">
