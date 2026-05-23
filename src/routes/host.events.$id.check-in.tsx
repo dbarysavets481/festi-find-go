@@ -53,7 +53,6 @@ function CheckInPage() {
     setEvent(ev as EventRow);
 
     const hostFlag = ev.created_by === user.id;
-    setIsHost(hostFlag);
     let allowed = hostFlag;
     if (!allowed) {
       const [{ data: c }, { data: hc }] = await Promise.all([
