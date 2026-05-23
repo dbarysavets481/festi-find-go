@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { SiteNav } from "@/components/SiteNav";
 import { toast } from "sonner";
 import { CheckCircle2, ScanLine, Undo2, ArrowLeft } from "lucide-react";
-import { ExportCsvButton } from "@/components/ExportCsvButton";
+
 
 export const Route = createFileRoute("/host/events/$id/check-in")({
   component: CheckInPage,
@@ -188,12 +188,9 @@ function CheckInPage() {
           Back to dashboard
         </Link>
 
-        <div className="flex items-start justify-between gap-3 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold mb-1">Check-in</h1>
-            <p className="text-sm text-muted-foreground">{event?.title}</p>
-          </div>
-          {isHost && <ExportCsvButton eventId={id} variant="ring" />}
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-semibold mb-1">Check-in</h1>
+          <p className="text-sm text-muted-foreground">{event?.title}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-8">
