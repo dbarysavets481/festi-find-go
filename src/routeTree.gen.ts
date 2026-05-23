@@ -12,11 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as MyTicketsRouteImport } from './routes/my-tickets'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as CheckerRouteImport } from './routes/checker'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HostOnboardingRouteImport } from './routes/host.onboarding'
 import { Route as HostDashboardRouteImport } from './routes/host.dashboard'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as HostEventsNewRouteImport } from './routes/host.events.new'
+import { Route as CheckerAcceptTokenRouteImport } from './routes/checker.accept.$token'
+import { Route as HostEventsIdModerationRouteImport } from './routes/host.events.$id.moderation'
 import { Route as HostEventsIdEditRouteImport } from './routes/host.events.$id.edit'
 import { Route as HostEventsIdCheckInRouteImport } from './routes/host.events.$id.check-in'
 
@@ -33,6 +36,11 @@ const MyTicketsRoute = MyTicketsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckerRoute = CheckerRouteImport.update({
+  id: '/checker',
+  path: '/checker',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -60,6 +68,16 @@ const HostEventsNewRoute = HostEventsNewRouteImport.update({
   path: '/host/events/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckerAcceptTokenRoute = CheckerAcceptTokenRouteImport.update({
+  id: '/accept/$token',
+  path: '/accept/$token',
+  getParentRoute: () => CheckerRoute,
+} as any)
+const HostEventsIdModerationRoute = HostEventsIdModerationRouteImport.update({
+  id: '/host/events/$id/moderation',
+  path: '/host/events/$id/moderation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HostEventsIdEditRoute = HostEventsIdEditRouteImport.update({
   id: '/host/events/$id/edit',
   path: '/host/events/$id/edit',
@@ -73,82 +91,101 @@ const HostEventsIdCheckInRoute = HostEventsIdCheckInRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checker': typeof CheckerRouteWithChildren
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/signup': typeof SignupRoute
   '/events/$id': typeof EventsIdRoute
   '/host/dashboard': typeof HostDashboardRoute
   '/host/onboarding': typeof HostOnboardingRoute
+  '/checker/accept/$token': typeof CheckerAcceptTokenRoute
   '/host/events/new': typeof HostEventsNewRoute
   '/host/events/$id/check-in': typeof HostEventsIdCheckInRoute
   '/host/events/$id/edit': typeof HostEventsIdEditRoute
+  '/host/events/$id/moderation': typeof HostEventsIdModerationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checker': typeof CheckerRouteWithChildren
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/signup': typeof SignupRoute
   '/events/$id': typeof EventsIdRoute
   '/host/dashboard': typeof HostDashboardRoute
   '/host/onboarding': typeof HostOnboardingRoute
+  '/checker/accept/$token': typeof CheckerAcceptTokenRoute
   '/host/events/new': typeof HostEventsNewRoute
   '/host/events/$id/check-in': typeof HostEventsIdCheckInRoute
   '/host/events/$id/edit': typeof HostEventsIdEditRoute
+  '/host/events/$id/moderation': typeof HostEventsIdModerationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checker': typeof CheckerRouteWithChildren
   '/login': typeof LoginRoute
   '/my-tickets': typeof MyTicketsRoute
   '/signup': typeof SignupRoute
   '/events/$id': typeof EventsIdRoute
   '/host/dashboard': typeof HostDashboardRoute
   '/host/onboarding': typeof HostOnboardingRoute
+  '/checker/accept/$token': typeof CheckerAcceptTokenRoute
   '/host/events/new': typeof HostEventsNewRoute
   '/host/events/$id/check-in': typeof HostEventsIdCheckInRoute
   '/host/events/$id/edit': typeof HostEventsIdEditRoute
+  '/host/events/$id/moderation': typeof HostEventsIdModerationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/checker'
     | '/login'
     | '/my-tickets'
     | '/signup'
     | '/events/$id'
     | '/host/dashboard'
     | '/host/onboarding'
+    | '/checker/accept/$token'
     | '/host/events/new'
     | '/host/events/$id/check-in'
     | '/host/events/$id/edit'
+    | '/host/events/$id/moderation'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/checker'
     | '/login'
     | '/my-tickets'
     | '/signup'
     | '/events/$id'
     | '/host/dashboard'
     | '/host/onboarding'
+    | '/checker/accept/$token'
     | '/host/events/new'
     | '/host/events/$id/check-in'
     | '/host/events/$id/edit'
+    | '/host/events/$id/moderation'
   id:
     | '__root__'
     | '/'
+    | '/checker'
     | '/login'
     | '/my-tickets'
     | '/signup'
     | '/events/$id'
     | '/host/dashboard'
     | '/host/onboarding'
+    | '/checker/accept/$token'
     | '/host/events/new'
     | '/host/events/$id/check-in'
     | '/host/events/$id/edit'
+    | '/host/events/$id/moderation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckerRoute: typeof CheckerRouteWithChildren
   LoginRoute: typeof LoginRoute
   MyTicketsRoute: typeof MyTicketsRoute
   SignupRoute: typeof SignupRoute
@@ -158,6 +195,7 @@ export interface RootRouteChildren {
   HostEventsNewRoute: typeof HostEventsNewRoute
   HostEventsIdCheckInRoute: typeof HostEventsIdCheckInRoute
   HostEventsIdEditRoute: typeof HostEventsIdEditRoute
+  HostEventsIdModerationRoute: typeof HostEventsIdModerationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -181,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checker': {
+      id: '/checker'
+      path: '/checker'
+      fullPath: '/checker'
+      preLoaderRoute: typeof CheckerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -218,6 +263,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HostEventsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checker/accept/$token': {
+      id: '/checker/accept/$token'
+      path: '/accept/$token'
+      fullPath: '/checker/accept/$token'
+      preLoaderRoute: typeof CheckerAcceptTokenRouteImport
+      parentRoute: typeof CheckerRoute
+    }
+    '/host/events/$id/moderation': {
+      id: '/host/events/$id/moderation'
+      path: '/host/events/$id/moderation'
+      fullPath: '/host/events/$id/moderation'
+      preLoaderRoute: typeof HostEventsIdModerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/host/events/$id/edit': {
       id: '/host/events/$id/edit'
       path: '/host/events/$id/edit'
@@ -235,8 +294,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CheckerRouteChildren {
+  CheckerAcceptTokenRoute: typeof CheckerAcceptTokenRoute
+}
+
+const CheckerRouteChildren: CheckerRouteChildren = {
+  CheckerAcceptTokenRoute: CheckerAcceptTokenRoute,
+}
+
+const CheckerRouteWithChildren =
+  CheckerRoute._addFileChildren(CheckerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckerRoute: CheckerRouteWithChildren,
   LoginRoute: LoginRoute,
   MyTicketsRoute: MyTicketsRoute,
   SignupRoute: SignupRoute,
@@ -246,7 +317,18 @@ const rootRouteChildren: RootRouteChildren = {
   HostEventsNewRoute: HostEventsNewRoute,
   HostEventsIdCheckInRoute: HostEventsIdCheckInRoute,
   HostEventsIdEditRoute: HostEventsIdEditRoute,
+  HostEventsIdModerationRoute: HostEventsIdModerationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
