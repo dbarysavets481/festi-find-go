@@ -33,6 +33,13 @@ export function SiteNav() {
             >
               Host
             </Link>
+            <Link
+              to="/checker"
+              activeProps={{ className: "text-foreground" }}
+              className="hover:text-foreground transition-colors"
+            >
+              Checker
+            </Link>
           </div>
         </div>
         <div className="flex items-center gap-2">

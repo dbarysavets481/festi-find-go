@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      checker_invites: {
+        Row: {
+          created_at: string
+          expires_at: string
+          host_user_id: string
+          id: string
+          token: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          host_user_id: string
+          id?: string
+          token?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          host_user_id?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       event_checkers: {
         Row: {
           created_at: string
@@ -43,6 +73,88 @@ export type Database = {
           },
         ]
       }
+      event_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          event_id: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_feedback_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_photos: {
+        Row: {
+          created_at: string
+          event_id: string
+          hidden: boolean
+          id: string
+          image_url: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          storage_path: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          hidden?: boolean
+          id?: string
+          image_url: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          storage_path?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          hidden?: boolean
+          id?: string
+          image_url?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          storage_path?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_photos_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           capacity: number | null
@@ -51,6 +163,7 @@ export type Database = {
           created_by: string | null
           description: string
           ends_at: string | null
+          hidden: boolean
           host_id: string | null
           id: string
           is_paid: boolean
@@ -70,6 +183,7 @@ export type Database = {
           created_by?: string | null
           description?: string
           ends_at?: string | null
+          hidden?: boolean
           host_id?: string | null
           id?: string
           is_paid?: boolean
@@ -89,6 +203,7 @@ export type Database = {
           created_by?: string | null
           description?: string
           ends_at?: string | null
+          hidden?: boolean
           host_id?: string | null
           id?: string
           is_paid?: boolean
@@ -110,6 +225,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      host_checkers: {
+        Row: {
+          created_at: string
+          host_user_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          host_user_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          host_user_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       hosts: {
         Row: {
@@ -141,6 +277,36 @@ export type Database = {
           name?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          reporter_id: string
+          status: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          reporter_id: string
+          status?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string
+          target_id?: string
+          target_type?: string
         }
         Relationships: []
       }
@@ -191,6 +357,8 @@ export type Database = {
     }
     Functions: {
       can_check_in_event: { Args: { _event_id: string }; Returns: boolean }
+      checker_event_ids: { Args: never; Returns: string[] }
+      redeem_checker_invite: { Args: { _token: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

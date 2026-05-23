@@ -5,7 +5,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { SiteNav } from "@/components/SiteNav";
 import { ExportCsvButton } from "@/components/ExportCsvButton";
 import { toast } from "sonner";
-import { Calendar, Plus, Copy, Eye, EyeOff, Pencil, ScanLine } from "lucide-react";
+import { Calendar, Plus, Copy, Eye, EyeOff, Pencil, ScanLine, ShieldAlert } from "lucide-react";
+import { CheckerInvitesPanel } from "@/components/CheckerInvitesPanel";
 
 export const Route = createFileRoute("/host/dashboard")({
   component: HostDashboardPage,
@@ -159,6 +160,8 @@ function HostDashboardPage() {
           </Link>
         </div>
 
+        <CheckerInvitesPanel />
+
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Your events
         </h2>
@@ -215,6 +218,14 @@ function HostDashboardPage() {
                   >
                     <Pencil className="size-3.5" />
                     Edit
+                  </Link>
+                  <Link
+                    to="/host/events/$id/moderation"
+                    params={{ id: e.id }}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-muted"
+                  >
+                    <ShieldAlert className="size-3.5" />
+                    Moderation
                   </Link>
                   <button
                     onClick={() => duplicate(e.id)}

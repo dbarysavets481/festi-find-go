@@ -7,6 +7,9 @@ import { eventImage } from "@/lib/event-images";
 import { buildIcs, downloadIcs } from "@/lib/calendar";
 import { toast } from "sonner";
 import { Calendar, MapPin, Users, Clock, Globe, CheckCircle2, Ticket, Hourglass, X } from "lucide-react";
+import { FeedbackSection } from "@/components/FeedbackSection";
+import { GallerySection } from "@/components/GallerySection";
+import { ReportButton } from "@/components/ReportButton";
 
 export const Route = createFileRoute("/events/$id")({
   component: EventDetailPage,
@@ -248,6 +251,16 @@ function EventDetailPage() {
                 </Detail>
               )}
 
+            </div>
+
+            <GallerySection eventId={event.id} userHasConfirmedRsvp={rsvp?.status === "confirmed"} />
+            <FeedbackSection
+              eventId={event.id}
+              eventEnded={isPast}
+              userHasConfirmedRsvp={rsvp?.status === "confirmed"}
+            />
+            <div className="mt-10 flex justify-end">
+              <ReportButton targetType="event" targetId={event.id} />
             </div>
           </div>
 
