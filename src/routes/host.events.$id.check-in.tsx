@@ -33,7 +33,7 @@ function CheckInPage() {
   const [event, setEvent] = useState<EventRow | null>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
-  const [isHost, setIsHost] = useState(false);
+  // host vs checker is irrelevant for check-in UI; both have identical capabilities here
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [lastCheckedInId, setLastCheckedInId] = useState<string | null>(null);
