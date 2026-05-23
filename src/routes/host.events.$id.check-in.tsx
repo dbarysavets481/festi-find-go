@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { SiteNav } from "@/components/SiteNav";
 import { toast } from "sonner";
 import { CheckCircle2, ScanLine, Undo2, ArrowLeft } from "lucide-react";
-import { ExportCsvButton } from "@/components/ExportCsvButton";
+
 
 export const Route = createFileRoute("/host/events/$id/check-in")({
   component: CheckInPage,
@@ -33,7 +33,7 @@ function CheckInPage() {
   const [event, setEvent] = useState<EventRow | null>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
-  const [isHost, setIsHost] = useState(false);
+  // host vs checker is irrelevant for check-in UI; both have identical capabilities here
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [lastCheckedInId, setLastCheckedInId] = useState<string | null>(null);
@@ -53,7 +53,6 @@ function CheckInPage() {
     setEvent(ev as EventRow);
 
     const hostFlag = ev.created_by === user.id;
-    setIsHost(hostFlag);
     let allowed = hostFlag;
     if (!allowed) {
       const [{ data: c }, { data: hc }] = await Promise.all([
@@ -188,12 +187,9 @@ function CheckInPage() {
           Back to dashboard
         </Link>
 
-        <div className="flex items-start justify-between gap-3 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold mb-1">Check-in</h1>
-            <p className="text-sm text-muted-foreground">{event?.title}</p>
-          </div>
-          {isHost && <ExportCsvButton eventId={id} variant="ring" />}
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-semibold mb-1">Check-in</h1>
+          <p className="text-sm text-muted-foreground">{event?.title}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-8">
